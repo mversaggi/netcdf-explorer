@@ -4,6 +4,7 @@ import os
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     summary = None
@@ -13,6 +14,7 @@ def index():
             ds = xr.open_dataset(file)
             summary = str(ds)
     return render_template("index.html", summary=summary)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
