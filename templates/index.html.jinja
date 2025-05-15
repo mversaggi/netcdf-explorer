@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <title>NetCDF Explorer</title>
+    <link rel="icon" href="{{ url_for('static', filename='blue-block_100x100.png') }}" type="image/png">
+  </head>
+  <body>
+    <h1>NetCDF Explorer</h1>
+    <div>
+      <p>Please select the .nc file to explore:</p>
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".nc" required><br><br>
+        <input type="submit" value="Upload">
+      </form>
+    </div>
+    <div> 
+    </div>
+  </body>
+</html>
