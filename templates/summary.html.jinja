@@ -1,0 +1,14 @@
+{% extends "index.html.jinja" %}
+{% block main_content %}
+  {% if summary %}
+    <h2>Summary</h2>
+    {% if file_name %}
+      <h3>{{ file_name }}{% if file_size %} - {{ file_size }}{% endif %} </h3>
+    {% else %}
+      <em><h3>Unknown File</h3></em>
+    {% endif %}
+    <br><pre>{{ summary }}</pre>
+  {% else %}
+    <h3>Unable to Generate Summary</h3>
+  {% endif %}
+{% endblock %}
