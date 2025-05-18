@@ -1,14 +1,11 @@
-{% extends "templates/index.html.jinja" %}
+{% extends "index.html.jinja" %}
 {% block main_content %}
   {% if summary %}
     <h2>Summary</h2>
     {% if file_name %}
-      <h3>{{ file_name }}</h3>
+      <h3>{{ file_name }}{% if file_size %} - {{ file_size }}{% endif %} </h3>
     {% else %}
       <em><h3>Unknown File</h3></em>
-    {% endif %}
-    {% if file_size %}
-      <h3> - {{ file_size }} bytes</h3>
     {% endif %}
     <br><pre>{{ summary }}</pre>
   {% else %}

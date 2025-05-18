@@ -1,34 +1,40 @@
-from flask import Flask, redirect, request, render_template, url_for
-from netCDF4 import Dataset
-from pathlib import Path
-import tempfile
+from io import BytesIO
+from flask import Flask, redirect, request, render_template, session, url_for
+import humanize
 import xarray as xr
 
 app = Flask(__name__)
+# TODO: Secure this before deploying into production
+app.secret_key = "cUrR33_ChI_#"
 
+FILE_SESSION_KEY = 'netcdf_file'
+FILE_PATH_SESSION_KEY = 'netcdf_file_path'
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    summary = None
     if request.method == "POST":
-        file = request.files["file"]
-        if file:
-            return redirect(url_for("summary", file_path=Path(file)))
-    return render_template("index.html.jinja", summary=summary)
+        netcdf_file = request.files["netcdf_file"]
+        if netcdf_file:
+            # Open the file as a NetCDF dataset
+            netcdf_data = xr.open_dataset(BytesIO(netcdf_file.read()))
 
+            # Get file size
+            netcdf_file.seek(0, 2)
+            file_size = netcdf_file.tell()
+            netcdf_file.seek(0, 0)
 
-@app.get("/summary/<path:file_path>")
-def summary(file_path):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as temp_file:
-                file_path.save(temp_file.name)
-                temp_path = temp_file.name
+            # Store the summary text and file size in the session for later use
+            session['summary_text'] = str(netcdf_data)
+            session['file_size'] = file_size
 
-    file_size = Path(file_path).stat().st_size
-    ds = xr.open_dataset(temp_path, engine="netcdf4")
-    
-    summary = str(ds)
-    return render_template("index.html.jinja", "summary.html.jinja", file_name=file_path, file_size=file_size, summary=summary)
+            return redirect(url_for("summary", netcdf_filename=netcdf_file.filename))
+    return render_template("index.html.jinja")
 
+@app.get("/summary/<netcdf_filename>")
+def summary(netcdf_filename):
+    summary = session['summary_text']
+    file_size = session['file_size']
+    return render_template("summary.html.jinja", file_name=netcdf_filename, file_size=humanize.naturalsize(file_size), summary=summary)
 
 if __name__ == "__main__":
     app.run(debug=True)
