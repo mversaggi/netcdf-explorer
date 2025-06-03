@@ -1,3 +1,10 @@
+# Python, VSCode
 __pycache__
 .venv
 .vscode
+
+# Node.js
+node_modules
+
+# Tailwind CSS & Flowbite
+static/dist/output.css
