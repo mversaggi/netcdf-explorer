@@ -2,6 +2,7 @@
 __pycache__
 .venv
 .vscode
+*/reports
 
 # Node.js
 node_modules
