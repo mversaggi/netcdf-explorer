@@ -9,8 +9,8 @@
 
 <body class="min-h-full dark:bg-gray-900 dark:text-white">
   <div id="header" class="max-w-full items-center mx-auto mt-50 p-4">
-    <a href="localhost:5000" class="flex items-center space-x-3 rtl:space-x-reverse w-fit mx-auto">
-      <img src="/static/blue-block_100x100.png" class="h-12" alt="NetCDF Explorer Logo" />
+    <a href="{{ url_for('index') }}" class="flex items-center space-x-3 rtl:space-x-reverse w-fit mx-auto">
+      <img src="{{ url_for('static', filename='blue-block_100x100.png') }}" class="h-12" alt="NetCDF Explorer Logo" />
       <span class="self-center text-4xl font-serif whitespace-nowrap">NetCDF Explorer</span>
     </a>
   </div>
