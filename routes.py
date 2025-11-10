@@ -15,17 +15,17 @@ def index():
     if request.method == "POST":
         netcdf_file = request.files["netcdf_file"]
         if netcdf_file:
-            # Open the file as a NetCDF dataset
-            netcdf_data = xr.open_dataset(BytesIO(netcdf_file.read()))
-
             # Get file size
             netcdf_file.seek(0, 2)
             file_size = netcdf_file.tell()
             netcdf_file.seek(0, 0)
 
+            # Open the file as a NetCDF dataset
+            netcdf_data = xr.open_dataset(BytesIO(netcdf_file.read()))
+
             # Store the summary text and file size in the session for later use
-            session["summary_text"] = str(netcdf_data)
             session["file_size"] = file_size
+            session["summary_text"] = netcdf_data._repr_html_()
 
             return redirect(
                 url_for("netex.summary", netcdf_filename=netcdf_file.filename)

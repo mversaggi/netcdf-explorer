@@ -9,7 +9,7 @@ class TestLandingPage:
 
     def test_landing_page(self, test_client):
         """
-        GIVEN the NetCDF Explorer landing page
+        GIVEN a correctly configured Flask app
         WHEN a GET request is sent to the index route
         THEN a response code of 200 should be received in the response, and the page should contain the application
             title, logo, file input, and submit button.
