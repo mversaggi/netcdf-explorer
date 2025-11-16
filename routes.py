@@ -1,7 +1,10 @@
-from io import BytesIO
 import humanize
-import xarray as xr
+import xarray
+
 from flask import Blueprint, redirect, render_template, request, session, url_for
+from http import HTTPMethod
+from io import BytesIO
+
 
 
 app_blueprint = Blueprint("netex", __name__)
@@ -10,9 +13,9 @@ FILE_SESSION_KEY = "netcdf_file"
 FILE_PATH_SESSION_KEY = "netcdf_file_path"
 
 
-@app_blueprint.route("/", methods=["GET", "POST"])
+@app_blueprint.route("/", methods=[HTTPMethod.GET, HTTPMethod.POST])
 def index():
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         netcdf_file = request.files["netcdf_file"]
         if netcdf_file:
             # Get file size
@@ -21,7 +24,7 @@ def index():
             netcdf_file.seek(0, 0)
 
             # Open the file as a NetCDF dataset
-            netcdf_data = xr.open_dataset(BytesIO(netcdf_file.read()))
+            netcdf_data = xarray.open_dataset(BytesIO(netcdf_file.read()))
 
             # Store the summary text and file size in the session for later use
             session["file_size"] = file_size

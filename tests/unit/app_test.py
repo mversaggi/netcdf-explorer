@@ -1,4 +1,5 @@
 from app import create_app
+from http import HTTPMethod
 
 
 class TestApp:
@@ -9,7 +10,7 @@ class TestApp:
     def test_app_contains_index_route(self):
         """
         WHEN create_app() is called
-        THEN a correctly configured Flask app instance should be returned.
+        THEN a Flask app with an index route ("/") supporting GET and POST methods should be returned.
         """
         app = create_app()
 
@@ -25,13 +26,14 @@ class TestApp:
         index_rule = routes[0]
 
         assert index_rule.rule == "/"
-        assert "GET" in index_rule.methods
-        assert "POST" in index_rule.methods
+        
+        assert HTTPMethod.GET in index_rule.methods
+        assert HTTPMethod.POST in index_rule.methods
 
     def test_app_contains_summary_route(self):
         """
         WHEN create_app() is called
-        THEN a correctly configured Flask app instance should be returned.
+        THEN a Flask app with a "/summary/{netcdf_filename} route supporting only the GET method should be returned.
         """
         app = create_app()
 
@@ -46,4 +48,4 @@ class TestApp:
         summary_rule = routes[0]
 
         assert summary_rule.rule == "/summary/<netcdf_filename>"
-        assert "GET" in summary_rule.methods
+        assert HTTPMethod.GET in summary_rule.methods

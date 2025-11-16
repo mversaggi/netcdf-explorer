@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from flask import url_for, session
+from http import HTTPStatus
 
 
 class TestLandingPage:
@@ -15,7 +16,7 @@ class TestLandingPage:
             title, logo, file input, and submit button.
         """
         response = test_client.get("/")
-        assert response.status_code == 200
+        assert response.status_code == HTTPStatus.OK
 
         # Validate title is present and correct in metadata
         html = BeautifulSoup(response.data, "html.parser")
@@ -40,16 +41,18 @@ class TestLandingPage:
         THEN a response code of 302 should be received in the response, and the session should contain summary text and
             the file size.
         """
-        with open("tests/data/sresa1b_ncar_ccsm3-example.nc", "rb") as netcdf_file:
+        test_netcdf_filename = "sresa1b_ncar_ccsm3-example.nc"
+
+        with open(f"tests/data/{test_netcdf_filename}", "rb") as netcdf_file:
             response = test_client.post(
                 "/",
-                data={"netcdf_file": (netcdf_file, "sresa1b_ncar_ccsm3-example.nc")},
+                data={"netcdf_file": (netcdf_file, test_netcdf_filename)},
             )
 
-            assert response.status_code == 302
+            assert response.status_code == HTTPStatus.FOUND
 
             expected_path = url_for(
-                "netex.summary", netcdf_filename="sresa1b_ncar_ccsm3-example.nc"
+                "netex.summary", netcdf_filename=test_netcdf_filename
             )
             assert response.location.endswith(expected_path)
             assert "summary_text" in session

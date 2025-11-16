@@ -1,6 +1,8 @@
+import humanize
+
 from bs4 import BeautifulSoup
 from flask import session
-import humanize
+from http import HTTPStatus
 
 
 class TestSummaryPage:
@@ -22,7 +24,7 @@ class TestSummaryPage:
                 data={"netcdf_file": (netcdf_file, test_netcdf_filename)},
             )
 
-            assert post_index_response.status_code == 302
+            assert post_index_response.status_code == HTTPStatus.FOUND
 
             get_summary_response = test_client.get(post_index_response.location)
 
