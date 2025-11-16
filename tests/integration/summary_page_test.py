@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
-from flask import url_for, session
+from flask import session
 import humanize
 
 
 class TestSummaryPage:
     """
-    Integration test suite for the NetCDF Explorer summary pag.
+    Integration test suite for the NetCDF Explorer summary page.
     """
 
     def test_summary_page(self, test_client):
