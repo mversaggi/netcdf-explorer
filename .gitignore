@@ -1,7 +1,13 @@
-# Python, VSCode
+# Python
 __pycache__
+
+# VSCode
 .venv
 .vscode
+
+# Pytest folders
+.pytest_cache
+reports
 
 # Node.js
 node_modules
