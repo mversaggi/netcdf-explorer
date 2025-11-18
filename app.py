@@ -9,6 +9,8 @@ from typing import Mapping
 def create_app(config: Mapping):
     """
     Creates and configures the Flask application instance using the provided config mapping.
+
+    :param config: The config mapping containing configuration key-value pairs
     """
     app = Flask(__name__)
 
@@ -35,6 +37,8 @@ def configure_logging(app: Flask):
     """
     Configure logging for the Flask application. Attempts to get the log level from a LOG_LEVEL environment variable,
     defaults to INFO if environment variable not set.
+
+    :param app: The Flask app instance to configure logging on
     """
 
     # Get log level from env-var, default to INFO if env-var invalid or not set
@@ -45,12 +49,16 @@ def configure_logging(app: Flask):
 
     app.logger.setLevel(log_level)
 
-    # Remove default Flask handlers to avoid duplicate logs
+    # Clear default handler
+    #
+    # TODO: Configure logging before creating the Flask app instance to prevent default handler from being added.
+    # TODO: See https://flask.palletsprojects.com/en/stable/logging/
     app.logger.handlers.clear()
 
     # Create and configure formatter
     detailed_formatter = logging.Formatter(
-        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s", "%H:%M:%S,%f %Y-%m-%d"
+        "[%(asctime)s.%(msecs)03d] %(levelname)s (%(module)s): %(message)s",
+        "%Y-%m-%d, %H:%M:%S"
     )
 
     # Create and configure console handler for development logging

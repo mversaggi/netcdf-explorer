@@ -53,7 +53,7 @@ def summary(netcdf_filename):
     summary = session["summary_text"]
     file_size = session["file_size"]
 
-    current_app.logger.debug("Showing summary for file '{netcdf_filename}'")
+    current_app.logger.debug(f"Showing summary for file '{netcdf_filename}'")
 
     return render_template(
         "summary.html.jinja",
