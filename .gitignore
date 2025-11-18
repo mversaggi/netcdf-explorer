@@ -7,6 +7,7 @@ __pycache__
 
 # Pytest folders
 .pytest_cache
+logs
 reports
 
 # Node.js
