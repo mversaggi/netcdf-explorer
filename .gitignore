@@ -1,8 +1,11 @@
 # Python
 __pycache__
+.venv
+
+# PyCharm
+.idea/
 
 # VSCode
-.venv
 .vscode
 
 # Pytest folders
