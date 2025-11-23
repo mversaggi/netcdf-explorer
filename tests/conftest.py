@@ -3,7 +3,7 @@ import os
 import pytest
 
 from app import create_app
-from tests import constants
+import constants
 
 # TODO: Explain why this is needed for tests
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

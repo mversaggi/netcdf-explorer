@@ -1,10 +1,13 @@
 import os
 import logging
+import pathlib
 
 from flask import Flask
 from logging.handlers import RotatingFileHandler
 from typing import Mapping
 
+templates_directory = pathlib.Path(os.path.join("../../", "templates"))
+static_directory = pathlib.Path(os.path.join("../../", "static"))
 
 def create_app(config: Mapping):
     """
@@ -12,7 +15,9 @@ def create_app(config: Mapping):
 
     :param config: The config mapping containing configuration key-value pairs
     """
-    app = Flask(__name__)
+    app = Flask(__name__,
+                static_folder=static_directory,
+                template_folder=templates_directory)
 
     app.config.from_mapping(config)
     configure_logging(app)
