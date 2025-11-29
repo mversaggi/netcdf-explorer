@@ -36,6 +36,7 @@ def index():
             # Open the file as a NetCDF dataset
             netcdf_data = xarray.open_dataset(BytesIO(netcdf_file.read()))
 
+
             # Store the summary text and file size in the session for later use
             session["file_size"] = file_size
             session["summary_text"] = netcdf_data._repr_html_()
