@@ -10,11 +10,11 @@ __pycache__
 
 # Pytest folders
 .pytest_cache
-logs
+src/netcdf_explorer/logs
 reports
 
 # Node.js
 node_modules
 
 # Tailwind CSS & Flowbite
-static/dist/output.css
+static/src/output.css

@@ -1,0 +1,54 @@
+services:
+  # MinIO Object Storage Service
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+    container_name: minio
+    ports:
+      - "9000:9000"      # MinIO API
+      - "9001:9001"      # MinIO Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - netcdf-network
+
+  # Flask Web Application
+  flask-app:
+    build: .
+    container_name: netcdf-explorer
+    ports:
+      - "5000:5000"
+    environment:
+      # Flask Configuration
+      FLASK_APP: src/netcdf_explorer/app.py
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+
+      # MinIO Configuration
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET: netcdf-files
+      MINIO_SECURE: "false"
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - netcdf-network
+#    restart: unless-stopped
+
+volumes:
+  minio_data:
+    driver: local
+
+networks:
+  netcdf-network:
+    driver: bridge

@@ -12,7 +12,8 @@ static_directory = pathlib.Path(os.path.join("../../", "static"))
 
 def create_app(config: Mapping):
     """
-    Creates and configures the Flask application instance using the provided config mapping.
+    Creates and configures the Flask application instance using the provided config mapping. This function is called
+    directly when `flask --app src/netcdf-explorer/app run` is executed.
 
     :param config: The config mapping containing configuration key-value pairs
     """
@@ -33,20 +34,22 @@ def create_app(config: Mapping):
     connect_to_minio(app.config)
 
     # Register routes via Flask blueprint
-    from routes import app_blueprint
+    from .routes import app_blueprint
 
     app.logger.info("Registering server endpoints")
     app.register_blueprint(app_blueprint)
 
+    app.logger.info(f"Successfully created app instance: {app.name}")
+
     return app
 
 
-def configure_logging(app: Flask):
+def configure_logging(flask_app: Flask):
     """
     Configure logging for the Flask application. Attempts to get the log level from a LOG_LEVEL environment variable,
     defaults to INFO if environment variable not set.
 
-    :param app: The Flask app instance to configure logging on
+    :param flask_app: The Flask app instance to configure logging on
     """
 
     # Get log level from env-var, default to INFO if env-var invalid or not set
@@ -55,13 +58,13 @@ def configure_logging(app: Flask):
     if log_level is None or isinstance(log_level, str):
         log_level = logging.INFO
 
-    app.logger.setLevel(log_level)
+    flask_app.logger.setLevel(log_level)
 
     # Clear default handler
     #
     # TODO: Configure logging before creating the Flask app instance to prevent default handler from being added.
     # TODO: See https://flask.palletsprojects.com/en/stable/logging/
-    app.logger.handlers.clear()
+    flask_app.logger.handlers.clear()
 
     # Create and configure formatter
     detailed_formatter = logging.Formatter(
@@ -73,10 +76,10 @@ def configure_logging(app: Flask):
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(detailed_formatter)
-    app.logger.addHandler(console_handler)
+    flask_app.logger.addHandler(console_handler)
 
     # Add file handler with rotation for longer-running production deployments (e.g. netex-1.log, netex-2.log, etc.); omit during testing.
-    if not bool(app.config["TESTING"]):
+    if not bool(flask_app.config["TESTING"]):
         # Create logs directory if it doesn't exist
         if not os.path.exists("logs"):
             os.mkdir("logs")
@@ -87,7 +90,7 @@ def configure_logging(app: Flask):
         )
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(detailed_formatter)
-        app.logger.addHandler(file_handler)
+        flask_app.logger.addHandler(file_handler)
 
 def connect_to_minio(
     app_config: Dict[str, str] = None

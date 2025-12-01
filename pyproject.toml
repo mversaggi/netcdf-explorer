@@ -2,7 +2,6 @@
 name = "netcdf-explorer"
 version = "0.1.0"
 description = "Allows users to upload and analyze NetCDF3 and NetCDF4 files."
-readme = "README.md"
 requires-python = ">= 3.10"
 dependencies = [
        "beautifulsoup4==4.14.2",
