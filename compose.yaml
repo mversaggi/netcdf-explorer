@@ -43,7 +43,7 @@ services:
         condition: service_healthy
     networks:
       - netcdf-network
-#    restart: unless-stopped
+    restart: unless-stopped
 
 volumes:
   minio_data:

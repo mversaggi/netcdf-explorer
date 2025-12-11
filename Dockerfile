@@ -1,5 +1,4 @@
 FROM ghcr.io/astral-sh/uv:alpine3.22
-CMD mkdir "/app"
 COPY ./src /app/src
 COPY ./static /app/static
 COPY ./templates /app/templates
