@@ -1,16 +1,16 @@
-import os
 import logging
-
+import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from flask import Flask
 from minio import Minio
 
-import config_parser
+from .config_parser import load_config
 
-templates_directory = Path(os.path.join("../../", "templates"))
+config_file_env_var = "NETEX_CONFIG"
 static_directory = Path(os.path.join("../../", "static"))
+templates_directory = Path(os.path.join("../../", "templates"))
 
 
 def create_app():
@@ -22,11 +22,19 @@ def create_app():
         __name__, static_folder=static_directory, template_folder=templates_directory
     )
 
+    config_file_path_string = os.environ.get(config_file_env_var)
+    if config_file_path_string is None:
+        print(f"Config file env-var '{config_file_env_var}' not set, exiting...")
+
+    config_file_path = Path(config_file_path_string)
+
     # Load config file, allow error to be propagated if raised
-    config = config_parser.load_config(
-        Path(__file__).parent.parent.parent / "netex.toml"
-    )
+    config = load_config(Path(__file__).parent.parent.parent / config_file_path)
     flask_app.config = config
+    debug_config = config["flask"]["debug"]
+    if debug_config:
+        flask_app.config["TEMPLATES_AUTO_RELOAD"] = True
+    flask_app.debug = debug_config
 
     configure_logging(flask_app)
     flask_app.logger.info("Creating Flask application instance")
@@ -42,6 +50,7 @@ def create_app():
     from .routes import app_blueprint
 
     flask_app.logger.info("Registering server endpoints")
+    flask_app.config["PROVIDE_AUTOMATIC_OPTIONS"] = False
     flask_app.register_blueprint(app_blueprint)
 
     flask_app.logger.info(f"Successfully created app instance: {flask_app.name}")
@@ -57,7 +66,7 @@ def configure_logging(flask_app: Flask):
     :param flask_app: The Flask app instance to configure logging on
     """
     # Get log level from config, default to INFO if invalid or non-existent
-    log_level = logging.getLevelName(flask_app.config["logger"]["level"]).upper()
+    log_level = logging.getLevelName(flask_app.config["logger"]["level"].upper())
 
     if log_level is None or isinstance(log_level, str):
         log_level = logging.INFO

@@ -1,6 +1,8 @@
+from http import HTTPMethod
+from io import BytesIO
+
 import humanize
 import xarray
-
 from flask import (
     Blueprint,
     current_app,
@@ -10,9 +12,6 @@ from flask import (
     session,
     url_for,
 )
-from http import HTTPMethod
-from io import BytesIO
-
 
 app_blueprint = Blueprint("netex", __name__)
 
@@ -35,7 +34,6 @@ def index():
 
             # Open the file as a NetCDF dataset
             netcdf_data = xarray.open_dataset(BytesIO(netcdf_file.read()))
-
 
             # Store the summary text and file size in the session for later use
             session["file_size"] = file_size

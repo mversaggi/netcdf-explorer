@@ -1,0 +1,13 @@
+[flask]
+debug = true
+template_auto_reload = true
+secret_key = "test_flask_key"
+
+[object_storage]
+endpoint = "non_existent_endpoint"
+access_key = "access_key"
+secret_key = "secret_key"
+secure = false
+
+[logger]
+level = "warn"

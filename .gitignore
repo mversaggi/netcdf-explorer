@@ -10,7 +10,7 @@ __pycache__
 
 # Pytest folders
 .pytest_cache
-src/netcdf_explorer/logs
+src/netex/logs
 reports
 
 # Node.js

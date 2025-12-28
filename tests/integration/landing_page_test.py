@@ -1,6 +1,7 @@
+from http import HTTPStatus
+
 from bs4 import BeautifulSoup
 from flask import url_for, session
-from http import HTTPStatus
 
 
 class TestLandingPage:
@@ -8,14 +9,14 @@ class TestLandingPage:
     Integration test suite for the NetCDF Explorer landing page.
     """
 
-    def test_landing_page(self, test_client):
+    def test_landing_page(self, integration_test_client):
         """
         GIVEN a correctly configured Flask app
         WHEN a GET request is sent to the index route
         THEN a response code of 200 should be received in the response, and the page should contain the application
             title, logo, file input, and submit button.
         """
-        response = test_client.get("/")
+        response = integration_test_client.get("/")
         assert response.status_code == HTTPStatus.OK
 
         # Validate title is present and correct in metadata
@@ -34,7 +35,7 @@ class TestLandingPage:
         assert html.input
         assert html.input["type"] == "file"
 
-    def test_netcdf_file_posted(self, test_client):
+    def test_netcdf_file_posted(self, integration_test_client):
         """
         GIVEN the NetCDF Explorer landing page
         WHEN a POST request is sent to the index route with a valid NetCDF file
@@ -44,7 +45,7 @@ class TestLandingPage:
         test_netcdf_filename = "sresa1b_ncar_ccsm3-example.nc"
 
         with open(f"tests/data/{test_netcdf_filename}", "rb") as netcdf_file:
-            response = test_client.post(
+            response = integration_test_client.post(
                 "/",
                 data={"netcdf_file": (netcdf_file, test_netcdf_filename)},
             )

@@ -1,6 +1,8 @@
-from app import create_app
 from http import HTTPMethod
-from tests import constants
+
+import pytest
+
+from netex.app import create_app
 
 
 class TestApp:
@@ -8,19 +10,34 @@ class TestApp:
     Unit test suite for the NetCDF Explorer app.
     """
 
-    def test_app_contains_index_route(self):
+    @pytest.fixture()
+    def mocked_database_app(self, mocker):
+        """ """
+        # Mock the Minio class where it's imported in your module
+        mock_minio_class = mocker.patch("netex.app.Minio")
+
+        # Configure mock Minio instance for unit testing
+        mock_minio_instance = mock_minio_class.return_value
+        mock_minio_instance.list_buckets().return_value = []
+
+        # Now call create_app
+        yield create_app()
+
+        # Code that will run after your test, for example:
+
+    #        files_after = # ... do something to check the existing files
+    #        assert files_before == files_after
+
+    def test_app_contains_index_route(self, mocked_database_app):
         """
         WHEN create_app() is called
         THEN a Flask app with an index route ("/") supporting GET and POST methods should be returned.
         """
-        app = create_app({"TESTING": constants.SET_TESTING_CONFIG})
-
         # Assert configs
-        assert app is not None
-        assert app.config["TESTING"] == constants.SET_TESTING_CONFIG
-        assert app.secret_key is not None
+        assert mocked_database_app is not None
+        assert mocked_database_app.secret_key is not None
 
-        url_map = app.url_map
+        url_map = mocked_database_app.url_map
         # Assert index route is registered and supports GET and POST methods
         routes = [rule for rule in url_map.iter_rules() if rule.rule == "/"]
         assert len(routes) == 1
@@ -31,14 +48,12 @@ class TestApp:
         assert HTTPMethod.GET in index_rule.methods
         assert HTTPMethod.POST in index_rule.methods
 
-    def test_app_contains_summary_route(self):
+    def test_app_contains_summary_route(self, mocked_database_app):
         """
         WHEN create_app() is called
-        THEN a Flask app with a "/summary/{netcdf_filename} route supporting only the GET method should be returned.
+        THEN a Flask app with a /summary/{netcdf_filename} route supporting only the GET method should be returned.
         """
-        app = create_app({"TESTING": True})
-
-        url_map = app.url_map
+        url_map = mocked_database_app.url_map
         # Assert summary route is registered and supports GET method
         routes = [
             rule
