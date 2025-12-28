@@ -28,16 +28,16 @@ services:
       - "5000:5000"
     environment:
       # Flask Configuration
-      FLASK_APP: src/netcdf_explorer/app.py
-      FLASK_ENV: development
-      FLASK_DEBUG: 1
+      - FLASK_APP=src/netcdf_explorer/app.py
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
 
       # MinIO Configuration
-      MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin123
-      MINIO_BUCKET: netcdf-files
-      MINIO_SECURE: "false"
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - MINIO_SECURE=false
+      - NETCDF_BUCKET=netcdf-files
     depends_on:
       minio:
         condition: service_healthy

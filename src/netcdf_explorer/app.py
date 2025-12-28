@@ -1,47 +1,52 @@
 import os
 import logging
-import pathlib
+
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 from flask import Flask
-from logging.handlers import RotatingFileHandler
 from minio import Minio
-from typing import Dict, Mapping
 
-templates_directory = pathlib.Path(os.path.join("../../", "templates"))
-static_directory = pathlib.Path(os.path.join("../../", "static"))
+import config_parser
 
-def create_app(config: Mapping):
+templates_directory = Path(os.path.join("../../", "templates"))
+static_directory = Path(os.path.join("../../", "static"))
+
+
+def create_app():
     """
     Creates and configures the Flask application instance using the provided config mapping. This function is called
     directly when `flask --app src/netcdf-explorer/app run` is executed.
-
-    :param config: The config mapping containing configuration key-value pairs
     """
-    app = Flask(__name__,
-                static_folder=static_directory,
-                template_folder=templates_directory)
+    flask_app = Flask(
+        __name__, static_folder=static_directory, template_folder=templates_directory
+    )
 
-    app.config.from_mapping(config)
-    configure_logging(app)
-    app.logger.info("Creating Flask application instance")
+    # Load config file, allow error to be propagated if raised
+    config = config_parser.load_config(
+        Path(__file__).parent.parent.parent / "netex.toml"
+    )
+    flask_app.config = config
 
-    # TODO: Secure this before deploying into production
-    app.secret_key = "cUrR33_ChI_#"
+    configure_logging(flask_app)
+    flask_app.logger.info("Creating Flask application instance")
 
-    app.logger.debug(f"Using application configuration {config}")
+    flask_app.secret_key = flask_app.config["flask"]["secret_key"]
+
+    flask_app.logger.debug(f"Using application configuration {config}")
 
     # Connect to MinIO instance
-    connect_to_minio(app.config)
+    connect_to_minio(flask_app)
 
     # Register routes via Flask blueprint
     from .routes import app_blueprint
 
-    app.logger.info("Registering server endpoints")
-    app.register_blueprint(app_blueprint)
+    flask_app.logger.info("Registering server endpoints")
+    flask_app.register_blueprint(app_blueprint)
 
-    app.logger.info(f"Successfully created app instance: {app.name}")
+    flask_app.logger.info(f"Successfully created app instance: {flask_app.name}")
 
-    return app
+    return flask_app
 
 
 def configure_logging(flask_app: Flask):
@@ -51,9 +56,8 @@ def configure_logging(flask_app: Flask):
 
     :param flask_app: The Flask app instance to configure logging on
     """
-
-    # Get log level from env-var, default to INFO if env-var invalid or not set
-    log_level = logging.getLevelName(os.getenv("LOG_LEVEL"))
+    # Get log level from config, default to INFO if invalid or non-existent
+    log_level = logging.getLevelName(flask_app.config["logger"]["level"]).upper()
 
     if log_level is None or isinstance(log_level, str):
         log_level = logging.INFO
@@ -69,7 +73,7 @@ def configure_logging(flask_app: Flask):
     # Create and configure formatter
     detailed_formatter = logging.Formatter(
         "[%(asctime)s.%(msecs)03d] %(levelname)s (%(module)s): %(message)s",
-        "%Y-%m-%d, %H:%M:%S"
+        "%Y-%m-%d, %H:%M:%S",
     )
 
     # Create and configure console handler for development logging
@@ -79,7 +83,7 @@ def configure_logging(flask_app: Flask):
     flask_app.logger.addHandler(console_handler)
 
     # Add file handler with rotation for longer-running production deployments (e.g. netex-1.log, netex-2.log, etc.); omit during testing.
-    if not bool(flask_app.config["TESTING"]):
+    if not bool(flask_app.config["flask"]["debug"]):
         # Create logs directory if it doesn't exist
         if not os.path.exists("logs"):
             os.mkdir("logs")
@@ -92,25 +96,24 @@ def configure_logging(flask_app: Flask):
         file_handler.setFormatter(detailed_formatter)
         flask_app.logger.addHandler(file_handler)
 
-def connect_to_minio(
-    app_config: Dict[str, str] = None
-) -> Minio:
+
+def connect_to_minio(app: Flask) -> Minio:
     """
     Creates and configures a connection to a MinIO instance for storage of NetCDF files. The given config dictionary
-    is first checked for connection parameters; default values are used where no config parameter is provided. 
-    
+    is first checked for connection parameters; default values are used where no config parameter is provided.
+
     TODO: Secure database connection
-    
+
     Args:
         config: Dictionary containing MinIO connection parameters.
                 Supported keys:
                 - endpoint: MinIO server endpoint (default: "localhost:9000")
                 - access_key: Access key ID (default: "minioadmin")
                 - secret_key: Secret access key (default: "minioadmin")
-    
+
     Returns:
         Minio: Connected MinIO client instance
-        
+
     Example:
         >>> config = {
         ...     "endpoint": "minio.netex.com:9000",
@@ -119,39 +122,43 @@ def connect_to_minio(
         ... }
         >>> client = connect_to_minio(app.config)
     """
+    if app is None:
+        raise TypeError("Application instance cannot be None")
 
-    if app_config is None:
-        raise TypeError("Application configuration cannot be None")
+    app_config = app.config
 
-    host = app_config.get("HOST", "localhost:9000")
-    access_key = app_config.get("ACCESS_KEY", "minioadmin")
-    secret_key = app_config.get("SECRET_KEY", "minioadmin")
+    endpoint = app_config["object_storage"]["endpoint"]
+    access_key = app_config["object_storage"]["access_key"]
+    secret_key = app_config["object_storage"]["secret_key"]
+    secure = app_config["object_storage"]["secure"]
+
+    app.logger.debug(f"Connecting to MinIO, endpoint={endpoint}")
 
     # Create MinIO client
     client = Minio(
-        endpoint=host,
-        access_key=access_key,
-        secret_key=secret_key,
+        endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure
     )
-    
+
     # Test connection by listing buckets
     buckets = client.list_buckets()
 
-    if (buckets is None or len(buckets) == 0):
+    if buckets is None or len(buckets) == 0:
         app.logger.debug("No buckets found in MinIO instance")
     else:
-        app.logger.debug(f"Buckets found in MinIO instance: {client.list_buckets()}")
+        app.logger.debug(f"Buckets found in MinIO instance: {buckets}")
 
-    app.logger.info(f"Successfully connected to MinIO at {host}")
-    
+    app.logger.info(f"Successfully connected to MinIO at {endpoint}")
+
     return client
 
 
 # Example usage for storing NetCDF files
-def store_netcdf_example(client: Minio, bucket_name: str, file_path: str, object_name: str):
+def store_netcdf_example(
+    client: Minio, bucket_name: str, file_path: str, object_name: str
+):
     """
     Example function to store a NetCDF file in MinIO.
-    
+
     Args:
         client: Connected MinIO client
         bucket_name: Name of the bucket to store the file in
@@ -162,22 +169,17 @@ def store_netcdf_example(client: Minio, bucket_name: str, file_path: str, object
     if not client.bucket_exists(bucket_name):
         client.make_bucket(bucket_name)
         print(f"Created bucket: {bucket_name}")
-    
+
     # Upload NetCDF file
     client.fput_object(
         bucket_name=bucket_name,
         object_name=object_name,
         file_path=file_path,
-        content_type="application/netcdf"
+        content_type="application/netcdf",
     )
     print(f"Uploaded {file_path} as {object_name} to bucket {bucket_name}")
 
 
 if __name__ == "__main__":
-    # TODO: Support environment- and file-based configuration
-    app = create_app(
-        {
-            "FLASK_ENV": "development",
-        }
-    )
-    app.run(debug=True)
+    app = create_app()
+    app.run(debug=app.config["flask"]["debug"])
