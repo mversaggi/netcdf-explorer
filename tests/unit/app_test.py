@@ -25,9 +25,6 @@ class TestApp:
 
         # Code that will run after your test, for example:
 
-    #        files_after = # ... do something to check the existing files
-    #        assert files_before == files_after
-
     def test_app_contains_index_route(self, mocked_database_app):
         """
         WHEN create_app() is called

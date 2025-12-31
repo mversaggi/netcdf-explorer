@@ -1,5 +1,5 @@
 [project]
-name = "netcdf-explorer"
+name = "netex"
 version = "0.1.0"
 description = "Allows users to upload and analyze NetCDF3 and NetCDF4 files."
 requires-python = ">= 3.10"

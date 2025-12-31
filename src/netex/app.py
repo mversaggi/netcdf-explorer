@@ -6,7 +6,7 @@ from pathlib import Path
 from flask import Flask
 from minio import Minio
 
-from .config_parser import load_config
+from netex.conf.config_parser import load_configs
 
 config_file_env_var = "NETEX_CONFIG"
 static_directory = Path(os.path.join("../../", "static"))
@@ -16,7 +16,7 @@ templates_directory = Path(os.path.join("../../", "templates"))
 def create_app():
     """
     Creates and configures the Flask application instance using the provided config mapping. This function is called
-    directly when `flask --app src/netcdf-explorer/app run` is executed.
+    directly when `flask --app src/netex/app run` is executed.
     """
     flask_app = Flask(
         __name__, static_folder=static_directory, template_folder=templates_directory
@@ -29,7 +29,7 @@ def create_app():
     config_file_path = Path(config_file_path_string)
 
     # Load config file, allow error to be propagated if raised
-    config = load_config(Path(__file__).parent.parent.parent / config_file_path)
+    config = load_configs(Path(__file__).parent.parent.parent / config_file_path)
     flask_app.config = config
     debug_config = config["flask"]["debug"]
     if debug_config:

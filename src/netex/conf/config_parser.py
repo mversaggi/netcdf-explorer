@@ -33,14 +33,16 @@ Example configuration file:
     ```
 """
 
-import logging
 from pathlib import Path
 from typing import Dict, Any
 
+import os
 import toml
 
+from netex.conf.config_parser_constants import *
 
-def load_config(config_path: Path) -> Dict[str, Any]:
+
+def load_configs(config_path: Path) -> Dict[str, Any]:
     """
     Load and parse a TOML configuration file into a dictionary of key-value pairs.
 
@@ -54,17 +56,57 @@ def load_config(config_path: Path) -> Dict[str, Any]:
         FileNotFoundError: If the config file doesn't exist.
         toml.TomlDecodeError: If the TOML file is malformed.
     """
+    config = _initialize_config_from_file(config_path)
 
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+    # TODO: Validate that the dictionary contains keys that the app expects
 
-    try:
-        config = toml.load(config_path)
-        logging.info(f"Successfully loaded configuration from {config_path}")
-        return config
-    except toml.TomlDecodeError as e:
-        logging.error(f"Error parsing TOML configuration at {config_path}: {e}")
-        raise
+    _update_config_with_env_vars(config)
+
+    return config
+
+
+def _initialize_config_from_file(config_path: Path) -> Dict[Any, Any]:
+    """ """
+    config = dict()
+
+    if config_path.exists():
+        try:
+            config = toml.load(config_path)
+            print(f"Successfully loaded configuration from {config_path}")
+        except toml.TomlDecodeError as e:
+            print(
+                f"Error parsing TOML configuration at {config_path}; using only environment variables for app configuration: {e}"
+            )
+    else:
+        print(
+            f"Configuration file not found at {config_path}; using only environment variables for app configuration"
+        )
+
+    return config
+
+
+def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
+    """ """
+    if (flask_debug := os.getenv(FLASK_DEBUG_ENV_VAR)) is not None:
+        config[FLASK_TABLE][FLASK_DEBUG] = flask_debug.lower() == "true"
+
+    if (flask_key := os.getenv(FLASK_KEY_ENV_VAR)) is not None:
+        config[FLASK_TABLE][FLASK_KEY] = flask_key
+
+    if (obj_store_endpoint := os.getenv(OBJ_STORE_ENDPOINT_ENV_VAR)) is not None:
+        config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT] = obj_store_endpoint
+
+    if (obj_store_access_key := os.getenv(OBJ_STORE_ACCESS_KEY_ENV_VAR)) is not None:
+        config[OBJ_STORE_TABLE][OBJ_STORE_ACCESS_KEY] = obj_store_access_key
+
+    if (obj_store_secret_key := os.getenv(OBJ_STORE_SECRET_KEY_ENV_VAR)) is not None:
+        config[OBJ_STORE_TABLE][OBJ_STORE_SECRET_KEY] = obj_store_secret_key
+
+    if (obj_store_secure := os.getenv(OBJ_STORE_SECURE_ENV_VAR)) is not None:
+        config[OBJ_STORE_TABLE][OBJ_STORE_SECURE] = obj_store_secure.lower() == "true"
+
+    if (logger_level := os.getenv(LOGGER_LEVEL_ENV_VAR)) is not None:
+        config[LOGGER_TABLE][LOGGER_LEVEL] = logger_level
 
 
 def get_config_value(config: Dict[str, Any], key: str, default: Any = None) -> Any:
