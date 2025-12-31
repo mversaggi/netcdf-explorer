@@ -58,9 +58,9 @@ def load_configs(config_path: Path) -> Dict[str, Any]:
     """
     config = _initialize_config_from_file(config_path)
 
-    # TODO: Validate that the dictionary contains keys that the app expects
-
+    _populate_missing_tables(config)
     _update_config_with_env_vars(config)
+    # TODO:    _set_defaults_for_missing_config_values(config)
 
     return config
 
@@ -85,6 +85,16 @@ def _initialize_config_from_file(config_path: Path) -> Dict[Any, Any]:
     return config
 
 
+def _populate_missing_tables(config: Dict[str, Any]) -> None:
+    """ """
+    if not config.__contains__(FLASK_TABLE):
+        config[FLASK_TABLE] = {}
+    if not config.__contains__(OBJ_STORE_TABLE):
+        config[OBJ_STORE_TABLE] = {}
+    if not config.__contains__(LOGGER_TABLE):
+        config[LOGGER_TABLE] = {}
+
+
 def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
     """ """
     if (flask_debug := os.getenv(FLASK_DEBUG_ENV_VAR)) is not None:
@@ -107,29 +117,6 @@ def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
 
     if (logger_level := os.getenv(LOGGER_LEVEL_ENV_VAR)) is not None:
         config[LOGGER_TABLE][LOGGER_LEVEL] = logger_level
-
-
-def get_config_value(config: Dict[str, Any], key: str, default: Any = None) -> Any:
-    """
-    Safely get a value from the configuration dictionary.
-
-    Args:
-        config: Configuration dictionary.
-        key: Dot-notation key to access nested values (e.g., 'database.host').
-        default: Default value to return if the key is not found.
-
-    Returns:
-        The configuration value or the default if not found.
-    """
-    keys = key.split(".")
-    value = config
-
-    for k in keys:
-        if isinstance(value, dict) and k in value:
-            value = value[k]
-        else:
-            return default
-    return value
 
 
 if __name__ == "__main__":
