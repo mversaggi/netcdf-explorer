@@ -7,6 +7,16 @@ from flask import Flask
 from minio import Minio
 
 from netex.conf.config_parser import load_configs
+from netex.conf.config_parser_constants import (
+    OBJ_STORE_ENDPOINT,
+    OBJ_STORE_TABLE,
+    OBJ_STORE_ACCESS_KEY,
+    OBJ_STORE_SECRET_KEY,
+    OBJ_STORE_SECURE,
+    FLASK_TABLE,
+    FLASK_DEBUG,
+    FLASK_KEY,
+)
 
 config_file_env_var = "NETEX_CONFIG"
 static_directory = Path(os.path.join("../../", "static"))
@@ -30,8 +40,8 @@ def create_app():
 
     # Load config file, allow error to be propagated if raised
     config = load_configs(Path(__file__).parent.parent.parent / config_file_path)
-    flask_app.config = config
-    debug_config = config["flask"]["debug"]
+    flask_app.config.update(config)
+    debug_config = config[FLASK_TABLE][FLASK_DEBUG]
     if debug_config:
         flask_app.config["TEMPLATES_AUTO_RELOAD"] = True
     flask_app.debug = debug_config
@@ -39,7 +49,7 @@ def create_app():
     configure_logging(flask_app)
     flask_app.logger.info("Creating Flask application instance")
 
-    flask_app.secret_key = flask_app.config["flask"]["secret_key"]
+    flask_app.secret_key = flask_app.config[FLASK_TABLE][FLASK_KEY]
 
     flask_app.logger.debug(f"Using application configuration {config}")
 
@@ -136,10 +146,10 @@ def connect_to_minio(app: Flask) -> Minio:
 
     app_config = app.config
 
-    endpoint = app_config["object_storage"]["endpoint"]
-    access_key = app_config["object_storage"]["access_key"]
-    secret_key = app_config["object_storage"]["secret_key"]
-    secure = app_config["object_storage"]["secure"]
+    endpoint = app_config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT]
+    access_key = app_config[OBJ_STORE_TABLE][OBJ_STORE_ACCESS_KEY]
+    secret_key = app_config[OBJ_STORE_TABLE][OBJ_STORE_SECRET_KEY]
+    secure = app_config[OBJ_STORE_TABLE][OBJ_STORE_SECURE]
 
     app.logger.debug(f"Connecting to MinIO, endpoint={endpoint}")
 

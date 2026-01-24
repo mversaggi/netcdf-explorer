@@ -57,7 +57,6 @@ def load_configs(config_path: Path) -> Dict[str, Any]:
         toml.TomlDecodeError: If the TOML file is malformed.
     """
     config = _initialize_config_from_file(config_path)
-
     _populate_missing_tables(config)
     _update_config_with_env_vars(config)
     # TODO:    _set_defaults_for_missing_config_values(config)
@@ -117,12 +116,3 @@ def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
 
     if (logger_level := os.getenv(LOGGER_LEVEL_ENV_VAR)) is not None:
         config[LOGGER_TABLE][LOGGER_LEVEL] = logger_level
-
-
-if __name__ == "__main__":
-    # Simple test when run directly
-    test_config = {
-        "flask": {"debug": True, "host": "0.0.0.0"},
-        "database": {"name": "test_db"},
-    }
-    print(f"Test get_config_value: {get_config_value(test_config, 'flask.debug')}")

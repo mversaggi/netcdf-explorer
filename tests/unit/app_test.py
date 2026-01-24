@@ -23,8 +23,6 @@ class TestApp:
         # Now call create_app
         yield create_app()
 
-        # Code that will run after your test, for example:
-
     def test_app_contains_index_route(self, mocked_database_app):
         """
         WHEN create_app() is called
@@ -62,3 +60,10 @@ class TestApp:
 
         assert summary_rule.rule == "/summary/<netcdf_filename>"
         assert HTTPMethod.GET in summary_rule.methods
+
+    def test_app_config_contains_flask_environment_variables(self, mocked_database_app):
+        """
+        WHEN create_app() is called
+        THEN the returned app instance has the Flask environment variables in its configuration dict.
+        """
+        assert "APPLICATION_ROOT" in mocked_database_app.config

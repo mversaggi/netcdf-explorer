@@ -18,7 +18,7 @@ class TestSummaryPage:
         """
         test_netcdf_filename = "sresa1b_ncar_ccsm3-example.nc"
 
-        with open(f"tests/data/{test_netcdf_filename}", "rb") as netcdf_file:
+        with open(f"tests/data/netcdf/{test_netcdf_filename}", "rb") as netcdf_file:
             post_index_response = integration_test_client.post(
                 "/",
                 data={"netcdf_file": (netcdf_file, test_netcdf_filename)},
