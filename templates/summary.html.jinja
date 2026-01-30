@@ -4,8 +4,7 @@
          class="flex flex-col w-3/4 h-1/4 bg-gray-500 border-blue-500 border-width-3 items-center justify-center rounded-2xl">
         {% if summary %}
             {% if file_name %}
-                <h1 class="text-2xl font-serif mt-7 mb-7">
-                    {{ file_name }}{% if file_size %} ({{ file_size }}){% endif %}</h1>
+                <h1 class="text-2xl font-serif mt-7 mb-7">{{ file_name }}{% if file_size %} ({{ file_size }}){% endif %}</h1>
             {% else %}
                 <em>
                     <h3>Unknown File</h3>
