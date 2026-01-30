@@ -22,6 +22,8 @@ config_file_env_var = "NETEX_CONFIG"
 static_directory = Path(os.path.join("../../", "static"))
 templates_directory = Path(os.path.join("../../", "templates"))
 
+NETCDF_BUCKET_NAME = "netcdf-files"
+
 
 def create_app():
     """
@@ -165,6 +167,14 @@ def connect_to_minio(app: Flask) -> Minio:
         app.logger.debug("No buckets found in MinIO instance")
     else:
         app.logger.debug(f"Buckets found in MinIO instance: {buckets}")
+
+    # Create NetCDF bucket if it doesn't exist
+    if not client.bucket_exists(NETCDF_BUCKET_NAME):
+        client.make_bucket(NETCDF_BUCKET_NAME)
+        app.logger.info(f"Created bucket: {NETCDF_BUCKET_NAME}")
+
+    # Store client on app for use in routes
+    app.object_store_client = client
 
     app.logger.info(f"Successfully connected to MinIO at {endpoint}")
 

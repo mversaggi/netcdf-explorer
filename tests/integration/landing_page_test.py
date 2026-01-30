@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from bs4 import BeautifulSoup
-from flask import url_for, session
+from flask import url_for
 
 
 class TestLandingPage:
@@ -39,8 +39,7 @@ class TestLandingPage:
         """
         GIVEN the NetCDF Explorer landing page
         WHEN a POST request is sent to the index route with a valid NetCDF file
-        THEN a response code of 302 should be received in the response, and the session should contain summary text and
-            the file size.
+        THEN a response code of 302 should be received in the response, redirecting to the summary page.
         """
         test_netcdf_filename = "sresa1b_ncar_ccsm3-example.nc"
 
@@ -56,7 +55,3 @@ class TestLandingPage:
                 "netex.summary", netcdf_filename=test_netcdf_filename
             )
             assert response.location.endswith(expected_path)
-            assert "summary_text" in session
-            assert session["summary_text"] is not None
-            assert "file_size" in session
-            assert session["file_size"] == 2_767_916
