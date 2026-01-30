@@ -11,10 +11,11 @@ RUN apk update && apk add --no-cache \
 # Set working directory
 WORKDIR /app
 
-# Copy src, static, and template directories
+# Copy src, static, template, and conf directories
 COPY ./src ./src
 COPY ./static ./static
 COPY ./templates ./templates
+COPY ./conf ./conf
 
 # Copy package files
 COPY package*.json .
@@ -27,9 +28,9 @@ COPY ./.python-version .
 # Copy run script
 COPY ./run_app.sh .
 
-# Install Node.js dependencies
+# Install Node.js dependencies and build Tailwind CSS
 RUN npm install tailwindcss @tailwindcss/cli && \
-    npx tailwindcss -i ./static/src/input.css -o ./static/src/output.css --minify
+    npx tailwindcss -i ./static/src/input.css -o ./static/dist/output.css --minify
 
 # Install Python
 RUN uv python install 3.13

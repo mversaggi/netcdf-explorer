@@ -41,7 +41,7 @@ docker-compose up
 ### Build Tailwind CSS
 ```bash
 npm install tailwindcss @tailwindcss/cli
-npx @tailwindcss/cli -i ./static/src/input.css -o ./static/src/output.css
+npx @tailwindcss/cli -i ./static/src/input.css -o ./static/dist/output.css
 # Add --watch for development
 ```
 

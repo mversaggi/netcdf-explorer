@@ -1,0 +1,16 @@
+# NetCDF Explorer Docker Configuration
+# Environment variables override these values
+
+[flask]
+debug = true
+template_auto_reload = true
+secret_key = "change_me_in_production"
+
+[object_storage]
+endpoint = "localhost:9000"
+access_key = "minioadmin"
+secret_key = "minioadmin"
+secure = false
+
+[logger]
+level = "info"
