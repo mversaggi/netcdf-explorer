@@ -1,0 +1,8 @@
+[flask]
+debug = true
+secret_key = "test_flask_key"
+
+[object_storage]
+endpoint = "test_endpoint"
+
+[logger]

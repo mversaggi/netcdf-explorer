@@ -41,8 +41,10 @@ class TestSummaryPage:
             html = BeautifulSoup(get_summary_response.data, "html.parser")
             summary_div = html.find("div", id="summary")
             assert summary_div
+            # Normalize whitespace to handle template formatting differences
+            h1_text = " ".join(summary_div.h1.get_text().split())
             assert (
-                summary_div.h1.string
+                h1_text
                 == f"{test_netcdf_filename} ({humanize.naturalsize(expected_file_size)})"
             )
 

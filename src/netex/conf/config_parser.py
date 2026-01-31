@@ -1,35 +1,41 @@
 """
 Configuration Parser Module
 
-This module provides utilities for loading and accessing configuration settings
-from TOML files. It includes functions for loading configuration files and
-safely accessing nested configuration values using dot notation.
+This module provides utilities for loading configuration settings from TOML files
+with environment variable overrides. Configuration is loaded hierarchically:
+1. Values from the TOML config file
+2. Environment variables override TOML values (if set)
+
+See README.md for a list of supported environment variables.
 
 Example usage:
     ```python
-    # Load configuration from default path (./.netex_config.toml)
-    config = load_config()
+    from pathlib import Path
+    from netex.conf.config_parser import load_configs
 
-    # Or specify a custom path
-    config = load_config("/path/to/config.toml")
+    # Load configuration from a TOML file
+    config = load_configs(Path("conf/netex.toml"))
 
     # Access configuration values
-    debug_mode = get_config_value(config, "flask.debug", False)
-    db_host = get_config_value(config, "database.host", "localhost")
+    debug_mode = config["flask"]["debug"]
+    endpoint = config["object_storage"]["endpoint"]
+    log_level = config["logger"]["level"]
     ```
 
-TODO: Update this example to be more realistic
 Example configuration file:
     ```toml
     [flask]
     debug = true
-    host = "0.0.0.0"
-    port = 5000
+    secret_key = "your_secret_key"
 
-    [database]
-    host = "localhost"
-    port = 5432
-    name = "myapp_db"
+    [object_storage]
+    endpoint = "localhost:9000"
+    access_key = "minioadmin"
+    secret_key = "minioadmin"
+    secure = false
+
+    [logger]
+    level = "info"
     ```
 """
 
@@ -44,48 +50,59 @@ from netex.conf.config_parser_constants import *
 
 def load_configs(config_path: Path) -> Dict[str, Any]:
     """
-    Load and parse a TOML configuration file into a dictionary of key-value pairs.
+    Load and parse a TOML configuration file, then apply environment variable overrides.
 
     Args:
-        config_path: Path to the configuration file.
+        config_path: Path to the TOML configuration file.
 
     Returns:
-        A dictionary containing the key-value configuration pairs.
+        A dictionary containing configuration organized by table (flask, object_storage, logger).
 
     Raises:
-        FileNotFoundError: If the config file doesn't exist.
-        toml.TomlDecodeError: If the TOML file is malformed.
+        FileNotFoundError: If the config file does not exist.
+        toml.TomlDecodeError: If the config file is malformed.
+        ValueError: If required configuration values are missing.
     """
     config = _initialize_config_from_file(config_path)
     _populate_missing_tables(config)
     _update_config_with_env_vars(config)
-    # TODO:    _set_defaults_for_missing_config_values(config)
+    _validate_required_config_values(config)
 
     return config
 
 
 def _initialize_config_from_file(config_path: Path) -> Dict[Any, Any]:
-    """ """
-    config = dict()
+    """
+    Load configuration from a TOML file.
 
-    if config_path.exists():
-        try:
-            config = toml.load(config_path)
-            print(f"Successfully loaded configuration from {config_path}")
-        except toml.TomlDecodeError as e:
-            print(
-                f"Error parsing TOML configuration at {config_path}; using only environment variables for app configuration: {e}"
-            )
-    else:
-        print(
-            f"Configuration file not found at {config_path}; using only environment variables for app configuration"
-        )
+    Args:
+        config_path: Path to the TOML configuration file.
+
+    Returns:
+        Parsed configuration dictionary.
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        toml.TomlDecodeError: If the config file is malformed.
+    """
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+
+    config = toml.load(config_path)
+    print(f"Successfully loaded configuration from {config_path}")
 
     return config
 
 
 def _populate_missing_tables(config: Dict[str, Any]) -> None:
-    """ """
+    """
+    Ensure all required configuration tables exist in the config dictionary.
+
+    Creates empty dictionaries for any missing tables (flask, object_storage, logger).
+
+    Args:
+        config: Configuration dictionary to populate.
+    """
     if not config.__contains__(FLASK_TABLE):
         config[FLASK_TABLE] = {}
     if not config.__contains__(OBJ_STORE_TABLE):
@@ -95,7 +112,12 @@ def _populate_missing_tables(config: Dict[str, Any]) -> None:
 
 
 def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
-    """ """
+    """
+    Override configuration values with environment variables if they are set.
+
+    Args:
+        config: Configuration dictionary to update.
+    """
     if (flask_debug := os.getenv(FLASK_DEBUG_ENV_VAR)) is not None:
         config[FLASK_TABLE][FLASK_DEBUG] = flask_debug.lower() == "true"
 
@@ -116,3 +138,41 @@ def _update_config_with_env_vars(config: Dict[str, Any]) -> None:
 
     if (logger_level := os.getenv(LOGGER_LEVEL_ENV_VAR)) is not None:
         config[LOGGER_TABLE][LOGGER_LEVEL] = logger_level
+
+
+def _validate_required_config_values(config: Dict[str, Any]) -> None:
+    """
+    Validate that all required configuration values are present.
+
+    Args:
+        config: Configuration dictionary to validate.
+
+    Raises:
+        ValueError: If any required configuration values are missing.
+    """
+    missing_values = []
+
+    # Flask required values
+    if FLASK_DEBUG not in config[FLASK_TABLE]:
+        missing_values.append(f"{FLASK_TABLE}.{FLASK_DEBUG}")
+    if FLASK_KEY not in config[FLASK_TABLE]:
+        missing_values.append(f"{FLASK_TABLE}.{FLASK_KEY}")
+
+    # Object storage required values
+    if OBJ_STORE_ENDPOINT not in config[OBJ_STORE_TABLE]:
+        missing_values.append(f"{OBJ_STORE_TABLE}.{OBJ_STORE_ENDPOINT}")
+    if OBJ_STORE_ACCESS_KEY not in config[OBJ_STORE_TABLE]:
+        missing_values.append(f"{OBJ_STORE_TABLE}.{OBJ_STORE_ACCESS_KEY}")
+    if OBJ_STORE_SECRET_KEY not in config[OBJ_STORE_TABLE]:
+        missing_values.append(f"{OBJ_STORE_TABLE}.{OBJ_STORE_SECRET_KEY}")
+    if OBJ_STORE_SECURE not in config[OBJ_STORE_TABLE]:
+        missing_values.append(f"{OBJ_STORE_TABLE}.{OBJ_STORE_SECURE}")
+
+    # Logger required values
+    if LOGGER_LEVEL not in config[LOGGER_TABLE]:
+        missing_values.append(f"{LOGGER_TABLE}.{LOGGER_LEVEL}")
+
+    if missing_values:
+        raise ValueError(
+            f"Missing required configuration values: {', '.join(missing_values)}"
+        )

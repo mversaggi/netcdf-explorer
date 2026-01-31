@@ -17,6 +17,11 @@ class TestConfigParser:
         return Path(__file__).parent.parent / "data" / "configs" / "empty_config.toml"
 
     @pytest.fixture(scope="class")
+    def partial_config_path(self) -> Path:
+        """Gets a reference to a config file with only some required values."""
+        return Path(__file__).parent.parent / "data" / "configs" / "partial_config.toml"
+
+    @pytest.fixture(scope="class")
     def valid_config_path(self) -> Path:
         """Gets a reference to the valid config file for testing."""
         return Path(__file__).parent.parent / "data" / "configs" / "valid_config.toml"
@@ -48,59 +53,70 @@ class TestConfigParser:
         assert logger_config
         assert logger_config[LOGGER_LEVEL] == "debug"
 
-    def test_load_configs_uses_env_vars_when_config_file_missing(self):
+    def test_load_configs_raises_file_not_found_error_when_config_file_missing(self):
         """
-        Tests that required configs are still found in environment variables when the application config file can't be found.
+        Tests that FileNotFoundError is raised when the config file doesn't exist.
         """
-        os.environ[OBJ_STORE_ENDPOINT_ENV_VAR] = obj_store_endpoint = (
-            uuid.uuid4().__str__()
-        )
-        os.environ[OBJ_STORE_ACCESS_KEY_ENV_VAR] = obj_store_access_key = (
-            uuid.uuid4().__str__()
-        )
+        with pytest.raises(FileNotFoundError):
+            load_configs(Path("/non/existent/path/config.toml"))
 
-        config = load_configs(Path("/non/existent/path/config.toml"))
-
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT] == obj_store_endpoint
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ACCESS_KEY] == obj_store_access_key
-
-    def test_load_configs_returns_empty_dictionary_when_config_file_empty(
+    def test_load_configs_raises_error_when_config_file_empty(
         self,
         empty_config_path,
     ):
         """
-        Tests that required configs are still found in environment variables when the application config file is empty.
+        Tests that a ValueError is raised when the config file is empty and
+        no environment variables provide the required values.
         """
-        os.environ[OBJ_STORE_ENDPOINT_ENV_VAR] = obj_store_endpoint = (
-            uuid.uuid4().__str__()
-        )
-        os.environ[OBJ_STORE_ACCESS_KEY_ENV_VAR] = obj_store_access_key = (
-            uuid.uuid4().__str__()
-        )
+        # Clear any env vars that might provide values
+        for env_var in [
+            FLASK_DEBUG_ENV_VAR,
+            FLASK_KEY_ENV_VAR,
+            OBJ_STORE_ENDPOINT_ENV_VAR,
+            OBJ_STORE_ACCESS_KEY_ENV_VAR,
+            OBJ_STORE_SECRET_KEY_ENV_VAR,
+            OBJ_STORE_SECURE_ENV_VAR,
+            LOGGER_LEVEL_ENV_VAR,
+        ]:
+            os.environ.pop(env_var, None)
 
-        config = load_configs(empty_config_path)
+        with pytest.raises(ValueError):
+            load_configs(empty_config_path)
 
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT] == obj_store_endpoint
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ACCESS_KEY] == obj_store_access_key
+    def test_load_configs_raises_error_when_required_values_partially_missing(
+        self,
+        partial_config_path,
+    ):
+        """
+        Tests that a ValueError is raised when only some required config values
+        are provided (via config file or environment variables).
+        """
+        # Clear any env vars that might provide values
+        for env_var in [
+            FLASK_DEBUG_ENV_VAR,
+            FLASK_KEY_ENV_VAR,
+            OBJ_STORE_ENDPOINT_ENV_VAR,
+            OBJ_STORE_ACCESS_KEY_ENV_VAR,
+            OBJ_STORE_SECRET_KEY_ENV_VAR,
+            OBJ_STORE_SECURE_ENV_VAR,
+            LOGGER_LEVEL_ENV_VAR,
+        ]:
+            os.environ.pop(env_var, None)
+
+        with pytest.raises(ValueError):
+            load_configs(partial_config_path)
 
     def test_load_configs_raises_toml_decode_error_when_config_is_malformed(
         self,
         invalid_config_path,
     ):
         """
-        Tests that required configs are still found in environment variables when the application config file is malformed.
+        Tests that TomlDecodeError is raised when the config file is malformed.
         """
-        os.environ[OBJ_STORE_ENDPOINT_ENV_VAR] = obj_store_endpoint = (
-            uuid.uuid4().__str__()
-        )
-        os.environ[OBJ_STORE_ACCESS_KEY_ENV_VAR] = obj_store_access_key = (
-            uuid.uuid4().__str__()
-        )
+        import toml
 
-        config = load_configs(invalid_config_path)
-
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT] == obj_store_endpoint
-        assert config[OBJ_STORE_TABLE][OBJ_STORE_ACCESS_KEY] == obj_store_access_key
+        with pytest.raises(toml.TomlDecodeError):
+            load_configs(invalid_config_path)
 
     def test_load_configs_prioritizes_flask_debug_env_var(self, valid_config_path):
         debug_flag = False
