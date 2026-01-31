@@ -1,32 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
-<head>
-    <title>NetCDF Explorer</title>
-    <link rel="icon" href="{{ url_for('static', filename='blue-block_100x100.png') }}" type="image/png">
-    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
-</head>
-
-<body class="min-h-full dark:bg-gray-900 dark:text-white">
-<div id="header" class="max-w-full items-center mx-auto mt-50 p-4">
-    <a href="{{ url_for('netex.index') }}" class="flex items-center space-x-3 rtl:space-x-reverse w-fit mx-auto">
-        <img src="{{ url_for('static', filename='blue-block_100x100.png') }}" class="h-12" alt="NetCDF Explorer Logo"/>
-        <span class="self-center text-4xl font-serif whitespace-nowrap">NetCDF Explorer</span>
-    </a>
-</div>
-<div id="main_content" class="flex justify-center py-2 w-screen mt-13">
-    {% block main_content %}
-        <form method="POST" action="/" enctype="multipart/form-data" class="flex flex-col items-center w-1/2">
-            <input id="file_input" name="netcdf_file" type="file"
-                   class="w-full text-md text-transparent border border-gray-300 rounded-lg bg-gray-50 file:bg-gray-500 file:cursor-pointer file:pb-1 file:pl-3 file:pr-3 file:pt-1 file:text-white file:font-serif dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark"/>
-            <button disabled id="explore_button" type="submit"
-                    class="m-10 text-white text-pl-3 bg-blue-800 cursor-pointer font-medium font-serif rounded-lg text-sm px-5 py-2.5 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-700 dark:hover:bg-blue-650 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-300 disabled:cursor-default">
-                Explore
-            </button>
-        </form>
-    {% endblock %}
-</div>
-<script>
+    <head>
+        <title>NetCDF Explorer</title>
+        <link rel="icon"
+              href="{{ url_for('static', filename='blue-block_100x100.png') }}"
+              type="image/png">
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='dist/output.css') }}">
+    </head>
+    <body class="min-h-full dark:bg-gray-900 dark:text-white">
+        <div id="header" class="max-w-full items-center mx-auto mt-50 p-4">
+            <a href="{{ url_for('netex.index') }}"
+               class="flex items-center space-x-3 rtl:space-x-reverse w-fit mx-auto">
+                <img src="{{ url_for('static', filename='blue-block_100x100.png') }}"
+                     class="h-12"
+                     alt="NetCDF Explorer Logo" />
+                <span class="self-center text-4xl font-serif whitespace-nowrap">NetCDF Explorer</span>
+            </a>
+        </div>
+        <div id="main_content" class="flex justify-center py-2 w-screen mt-13">
+            {% block main_content %}
+                <form method="POST"
+                      action="/"
+                      enctype="multipart/form-data"
+                      class="flex flex-col items-center w-1/2">
+                    <input id="file_input"
+                           name="netcdf_file"
+                           type="file"
+                           class="w-full text-md text-transparent border border-gray-300 rounded-lg bg-gray-50 file:bg-gray-500 file:cursor-pointer file:pb-1 file:pl-3 file:pr-3 file:pt-1 file:text-white file:font-serif dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark" />
+                    <button disabled
+                            id="explore_button"
+                            type="submit"
+                            class="m-10 text-white text-pl-3 bg-blue-800 cursor-pointer font-medium font-serif rounded-lg text-sm px-5 py-2.5 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-700 dark:hover:bg-blue-650 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-300 disabled:cursor-default">
+                        Explore
+                    </button>
+                </form>
+            {% endblock %}
+        </div>
+        <script>
     // Add an event listener to the file input to update the text content and enable the button
     let fileInput = document.getElementById('file_input');
     if (fileInput) {
@@ -55,7 +66,6 @@
         let mainContent = document.getElementById('main_content');
         mainContent.classList.replace('mt-13', 'mt-4');
     }
-</script>
-</body>
-
+        </script>
+    </body>
 </html>

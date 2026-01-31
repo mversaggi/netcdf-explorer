@@ -31,3 +31,12 @@ pythonpath = ["src", "tests", ]
 
 [tool.pytest_env]
 NETEX_CONFIG = "tests/conf/netex.toml"
+
+[dependency-groups]
+dev = [
+    "djlint>=1.36.4",
+]
+
+[tool.djlint]
+profile = "jinja"
+extension = "html.jinja"
