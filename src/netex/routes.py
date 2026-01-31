@@ -67,7 +67,9 @@ def summary(netcdf_filename):
         file_size = len(file_data)
     except S3Error as e:
         if e.code == "NoSuchKey":
-            current_app.logger.warning(f"File '{netcdf_filename}' not found in object store")
+            current_app.logger.warning(
+                f"File '{netcdf_filename}' not found in object store"
+            )
             abort(404, description=f"File '{netcdf_filename}' not found")
         raise
     finally:

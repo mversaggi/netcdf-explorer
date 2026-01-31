@@ -22,4 +22,3 @@ OBJ_STORE_SECRET_KEY = "secret_key"
 OBJ_STORE_SECURE = "secure"
 LOGGER_TABLE = "logger"
 LOGGER_LEVEL = "level"
-
