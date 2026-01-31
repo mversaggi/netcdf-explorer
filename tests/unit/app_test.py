@@ -8,12 +8,14 @@ from netex.app import create_app
 class TestApp:
     """
     Unit test suite for the NetCDF Explorer app.
+
+    All tests assume a valid configuration file unless the test name indicates otherwise.
     """
 
     @pytest.fixture()
     def mocked_database_app(self, mocker):
-        """ """
-        # Mock the Minio class where it's imported in your module
+        """Creates a Flask app instance with a mocked object storage client."""
+        # Mock the Minio class to avoid requiring a real object storage connection
         mock_minio_class = mocker.patch("netex.app.Minio")
 
         # Configure mock Minio instance for unit testing

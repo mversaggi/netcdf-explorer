@@ -1,7 +1,9 @@
 from http import HTTPStatus
 
 from bs4 import BeautifulSoup
-from flask import url_for
+from flask import current_app, url_for
+
+from netex.app import NETCDF_BUCKET_NAME
 
 
 class TestLandingPage:
@@ -50,6 +52,12 @@ class TestLandingPage:
             )
 
             assert response.status_code == HTTPStatus.FOUND
+
+            # Verify file was stored in object storage
+            file_stat = current_app.object_store_client.stat_object(
+                NETCDF_BUCKET_NAME, test_netcdf_filename
+            )
+            assert file_stat is not None
 
             expected_path = url_for(
                 "netex.summary", netcdf_filename=test_netcdf_filename

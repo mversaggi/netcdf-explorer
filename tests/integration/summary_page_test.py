@@ -2,6 +2,9 @@ from http import HTTPStatus
 
 import humanize
 from bs4 import BeautifulSoup
+from flask import current_app
+
+from netex.app import NETCDF_BUCKET_NAME
 
 
 class TestSummaryPage:
@@ -30,6 +33,13 @@ class TestSummaryPage:
             )
 
             assert post_index_response.status_code == HTTPStatus.FOUND
+
+            # Verify file was stored in object storage
+            file_stat = current_app.object_store_client.stat_object(
+                NETCDF_BUCKET_NAME, test_netcdf_filename
+            )
+            assert file_stat is not None
+            assert file_stat.size == expected_file_size
 
             get_summary_response = integration_test_client.get(
                 post_index_response.location
