@@ -26,6 +26,10 @@ dependencies = [
 requires = ["uv_build>=0.9.11,<0.10.0"]
 build-backend = "uv_build"
 
+[tool.djlint]
+profile = "jinja"
+extension = "html.jinja"
+
 [tool.pytest.ini_options]
 pythonpath = ["src", "tests", ]
 
@@ -34,9 +38,5 @@ NETEX_CONFIG = "tests/conf/netex.toml"
 
 [dependency-groups]
 dev = [
-    "djlint>=1.36.4",
+    "djlint==1.36.4",
 ]
-
-[tool.djlint]
-profile = "jinja"
-extension = "html.jinja"
