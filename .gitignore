@@ -8,13 +8,16 @@ __pycache__
 # VSCode
 .vscode
 
+# Claude Code
+.claude/
+
 # Pytest folders
 .pytest_cache
-logs
+src/netex/logs
 reports
 
 # Node.js
 node_modules
 
 # Tailwind CSS & Flowbite
-static/dist/output.css
+static/dist/

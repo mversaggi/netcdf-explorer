@@ -1,0 +1,16 @@
+# NetCDF Explorer Test Configuration
+#
+# Can be overridden by setting environment variables in pyproject.toml or during test set up (e.g. in fixtures).
+
+[flask]
+debug = true
+secret_key = "test_flask_key"
+
+[object_storage]
+endpoint = "non_existent_endpoint"
+access_key = "access_key"
+secret_key = "secret_key"
+secure = false
+
+[logger]
+level = "warn"

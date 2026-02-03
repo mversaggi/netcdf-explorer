@@ -1,0 +1,16 @@
+# NetCDF Explorer App Configuration
+#
+# These values can be overridden by their respective environment variables (see README.md).
+
+[flask]
+debug = true
+secret_key = "change_me_in_production"
+
+[object_storage]
+endpoint = "localhost:9000"
+access_key = "minioadmin"
+secret_key = "minioadmin"
+secure = false
+
+[logger]
+level = "info"
