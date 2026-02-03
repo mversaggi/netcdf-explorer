@@ -27,8 +27,8 @@ NETCDF_BUCKET_NAME = "netcdf-files"
 
 def create_app():
     """
-    Creates and configures the Flask application instance using the provided config mapping. This function is called
-    directly when `flask --app src/netex/app run` is executed.
+    Creates and configures the Flask application based on configuration environment variables and the config file
+    pointed to by the NETEX_CONFIG environment variable.
     """
     flask_app = Flask(
         __name__, static_folder=static_directory, template_folder=templates_directory
