@@ -4,7 +4,6 @@
 
 [flask]
 debug = true
-template_auto_reload = true
 secret_key = "test_flask_key"
 
 [object_storage]

@@ -4,7 +4,6 @@
 
 [flask]
 debug = true
-template_auto_reload = true
 secret_key = "change_me_in_production"
 
 [object_storage]

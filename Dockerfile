@@ -1,4 +1,4 @@
-# TODO:
+# TODO: Reduce image size, see https://mversagg.atlassian.net/browse/NEX-11
 
 FROM ghcr.io/astral-sh/uv:alpine3.22
 
