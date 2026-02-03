@@ -1,3 +1,7 @@
+# NetCDF Explorer Test Configuration
+#
+# Can be overridden by setting environment variables in pyproject.toml or during test set up (e.g. in fixtures).
+
 [flask]
 debug = true
 template_auto_reload = true

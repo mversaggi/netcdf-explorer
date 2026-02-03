@@ -1,5 +1,6 @@
-# NetCDF Explorer Docker Configuration
-# Environment variables override these values
+# NetCDF Explorer App Configuration
+#
+# These values can be overridden by their respective environment variables (see README.md).
 
 [flask]
 debug = true

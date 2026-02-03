@@ -1,13 +1,5 @@
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -50,7 +42,6 @@
     <li><a href="#configuration">Configuration</a></li>
     <li><a href="#testing">Testing</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -61,12 +52,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-NetCDF Explorer (netex) is a web application that allows users to upload and analyze NetCDF3 and NetCDF4 files. It provides a simple interface for viewing file metadata and structure using xarray's HTML representation.
+NetCDF Explorer (netex) is a web application that allows users to upload and analyze NetCDF3 and NetCDF4 files. It
+provides a simple interface for viewing file metadata and structure using xarray's HTML representation.
 
 Key features:
-* Upload NetCDF files through a web interface
-* View file summaries including dimensions, coordinates, and variables
-* Files are stored in MinIO object storage for persistence
+* Upload and view NetCDF file summaries including dimensions, coordinates, and variables
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -74,8 +64,8 @@ Key features:
 
 ### Built With
 
-* [![Flask][Flask-badge]][Flask-url]
 * [![Python][Python-badge]][Python-url]
+* [![Flask][Flask-badge]][Flask-url]
 * [![MinIO][MinIO-badge]][MinIO-url]
 * [![Tailwind CSS][Tailwind-badge]][Tailwind-url]
 * [![Docker][Docker-badge]][Docker-url]
@@ -264,14 +254,6 @@ Project Link: [https://github.com/mversaggi/netcdf-explorer](https://github.com/
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/mversaggi/netcdf-explorer.svg?style=for-the-badge
-[contributors-url]: https://github.com/mversaggi/netcdf-explorer/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/mversaggi/netcdf-explorer.svg?style=for-the-badge
-[forks-url]: https://github.com/mversaggi/netcdf-explorer/network/members
-[stars-shield]: https://img.shields.io/github/stars/mversaggi/netcdf-explorer.svg?style=for-the-badge
-[stars-url]: https://github.com/mversaggi/netcdf-explorer/stargazers
-[issues-shield]: https://img.shields.io/github/issues/mversaggi/netcdf-explorer.svg?style=for-the-badge
-[issues-url]: https://github.com/mversaggi/netcdf-explorer/issues
 [Flask-badge]: https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white
 [Flask-url]: https://flask.palletsprojects.com/
 [Python-badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white

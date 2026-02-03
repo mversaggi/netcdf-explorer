@@ -12,14 +12,19 @@ Example usage:
     ```python
     from pathlib import Path
     from netex.conf.config_parser import load_configs
+    from netex.conf.config_parser_constants import (
+        FLASK_TABLE, FLASK_DEBUG,
+        OBJ_STORE_TABLE, OBJ_STORE_ENDPOINT,
+        LOGGER_TABLE, LOGGER_LEVEL,
+    )
 
     # Load configuration from a TOML file
     config = load_configs(Path("conf/netex.toml"))
 
     # Access configuration values
-    debug_mode = config["flask"]["debug"]
-    endpoint = config["object_storage"]["endpoint"]
-    log_level = config["logger"]["level"]
+    debug_mode = config[FLASK_TABLE][FLASK_DEBUG]
+    endpoint = config[OBJ_STORE_TABLE][OBJ_STORE_ENDPOINT]
+    log_level = config[LOGGER_TABLE][LOGGER_LEVEL]
     ```
 
 Example configuration file:

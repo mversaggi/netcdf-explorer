@@ -1,11 +1,8 @@
 import os
-import sys
 import uuid
 from pathlib import Path
 
 import pytest
-
-sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 from netex.conf.config_parser import load_configs
 from netex.conf.config_parser_constants import *
