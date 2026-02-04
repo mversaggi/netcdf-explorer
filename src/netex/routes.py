@@ -87,3 +87,8 @@ def summary(netcdf_filename):
         file_size=humanize.naturalsize(file_size),
         summary=summary_html,
     )
+
+
+@app_blueprint.get("/map")
+def map_view():
+    return render_template("map.html.jinja", heatmap_data=None)

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>NetCDF Explorer - Map</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon"
+              href="{{ url_for('static', filename='blue-block_100x100.png') }}"
+              type="image/png">
+        <!-- MapLibre GL JS for basemap (3.x compatible with deck.gl 9.x) -->
+        <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+        <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+        <!-- deck.gl standalone bundle -->
+        <script src="https://unpkg.com/deck.gl@9.0.16/dist.min.js"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #map-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            #back-link {
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 8px 16px;
+                border-radius: 4px;
+                text-decoration: none;
+                color: #1e40af;
+                font-family: serif;
+                font-size: 14px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            #back-link:hover {
+                background: rgba(255, 255, 255, 1);
+            }
+        </style>
+    </head>
+    <body>
+        <a id="back-link" href="{{ url_for('netex.index') }}">Back to Explorer</a>
+        <div id="map-container"></div>
+
+        <script>
+            // Data passed from backend (or sample data for testing)
+            const heatmapData = {{ heatmap_data | tojson | safe if heatmap_data else '[]' }};
+
+            // Use sample data if no data provided (for template testing)
+            const data = heatmapData.length > 0 ? heatmapData : generateSampleData();
+
+            function generateSampleData() {
+                // Generate sample heatmap points for testing
+                // Points around the world with random weights
+                const points = [];
+                for (let i = 0; i < 1000; i++) {
+                    points.push({
+                        position: [
+                            -180 + Math.random() * 360,  // longitude
+                            -85 + Math.random() * 170    // latitude
+                        ],
+                        weight: Math.random()
+                    });
+                }
+                return points;
+            }
+
+            // Calculate zoom level to fit bounds in viewport
+            function getZoomForBounds(minLon, maxLon, minLat, maxLat, padding = 0.1) {
+                const lonDelta = (maxLon - minLon) * (1 + padding);
+                const latDelta = (maxLat - minLat) * (1 + padding);
+
+                // Approximate zoom calculation based on viewport size
+                // At zoom 0, the world is ~256px; each zoom doubles the size
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                // Degrees per pixel at zoom 0
+                const WORLD_WIDTH = 360;
+                const WORLD_HEIGHT = 170; // Approximate for web mercator
+
+                const zoomX = Math.log2(viewportWidth / 256 * WORLD_WIDTH / Math.max(lonDelta, 0.001));
+                const zoomY = Math.log2(viewportHeight / 256 * WORLD_HEIGHT / Math.max(latDelta, 0.001));
+
+                // Use the smaller zoom to fit both dimensions, clamp to reasonable range
+                return Math.max(0, Math.min(20, Math.min(zoomX, zoomY) - 1));
+            }
+
+            // Calculate data bounds for initial view
+            function calculateViewState(data) {
+                if (data.length === 0) {
+                    return {
+                        longitude: 0,
+                        latitude: 0,
+                        zoom: 1,
+                        pitch: 0,
+                        bearing: 0
+                    };
+                }
+
+                let minLon = Infinity, maxLon = -Infinity;
+                let minLat = Infinity, maxLat = -Infinity;
+
+                data.forEach(point => {
+                    const [lon, lat] = point.position;
+                    minLon = Math.min(minLon, lon);
+                    maxLon = Math.max(maxLon, lon);
+                    minLat = Math.min(minLat, lat);
+                    maxLat = Math.max(maxLat, lat);
+                });
+
+                return {
+                    longitude: (minLon + maxLon) / 2,
+                    latitude: (minLat + maxLat) / 2,
+                    zoom: getZoomForBounds(minLon, maxLon, minLat, maxLat),
+                    pitch: 0,
+                    bearing: 0
+                };
+            }
+
+            const INITIAL_VIEW_STATE = calculateViewState(data);
+
+            // Create the HeatmapLayer
+            const heatmapLayer = new deck.HeatmapLayer({
+                id: 'heatmap-layer',
+                data: data,
+                getPosition: d => d.position,
+                getWeight: d => d.weight,
+                radiusPixels: 30,
+                intensity: 1,
+                threshold: 0.03,
+                colorRange: [
+                    [255, 255, 178],
+                    [254, 217, 118],
+                    [254, 178, 76],
+                    [253, 141, 60],
+                    [240, 59, 32],
+                    [189, 0, 38]
+                ]
+            });
+
+            // Initialize deck.gl with MapLibre basemap
+            const deckgl = new deck.DeckGL({
+                container: 'map-container',
+                mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+                initialViewState: INITIAL_VIEW_STATE,
+                controller: {
+                    dragPan: true,
+                    dragRotate: false,
+                    scrollZoom: true,
+                    doubleClickZoom: true,
+                    touchZoom: true,
+                    touchRotate: false,
+                    keyboard: true
+                },
+                layers: [heatmapLayer]
+            });
+        </script>
+    </body>
+</html>
