@@ -49,15 +49,8 @@
         <div id="map-container"></div>
 
         <script>
-            // Data passed from backend (or sample data for testing)
-            const heatmapData = {{ heatmap_data | tojson | safe if heatmap_data else '[]' }};
-
-            // Use sample data if no data provided (for template testing)
-            const data = heatmapData.length > 0 ? heatmapData : generateSampleData();
-
             function generateSampleData() {
-                // Generate sample heatmap points for testing
-                // Points around the world with random weights
+                // Generate sample heatmap points for testing purposes; each point is assigned a random weight.
                 const points = [];
                 for (let i = 0; i < 1000; i++) {
                     points.push({
@@ -124,11 +117,17 @@
                 };
             }
 
+            // Data passed from backend (or sample data for testing)
+            const heatmapData = {{ heatmap_data | tojson | safe if heatmap_data else '[]' }};
+
+            // Use sample data if no data provided (for template testing)
+            const data = heatmapData.length > 0 ? heatmapData : generateSampleData();
+
             const INITIAL_VIEW_STATE = calculateViewState(data);
 
             // Create the HeatmapLayer
             const heatmapLayer = new deck.HeatmapLayer({
-                id: 'heatmap-layer',
+                id: 'nc-heatmap-layer',
                 data: data,
                 getPosition: d => d.position,
                 getWeight: d => d.weight,
@@ -145,10 +144,41 @@
                 ]
             });
 
+
             // Initialize deck.gl with MapLibre basemap
             const deckgl = new deck.DeckGL({
                 container: 'map-container',
-                mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+                mapStyle: {
+                    version: 8,
+                    sources: {
+                        'arcgis-ocean': {
+                            type: 'raster',
+                            tiles: [
+                                'https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}'
+                            ],
+                            tileSize: 256
+                        },
+                        'arcgis-ocean-ref': {
+                            type: 'raster',
+                            tiles: [
+                                'https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}'
+                            ],
+                            tileSize: 256
+                        }
+                    },
+                    layers: [
+                        {
+                            id: 'ocean-base',
+                            type: 'raster',
+                            source: 'arcgis-ocean'
+                        },
+                        {
+                            id: 'ocean-labels',
+                            type: 'raster',
+                            source: 'arcgis-ocean-ref'
+                        }
+                    ]
+                },
                 initialViewState: INITIAL_VIEW_STATE,
                 controller: {
                     dragPan: true,
