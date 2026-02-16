@@ -1,8 +1,9 @@
 # Production Dependencies
 flask==3.1.0
 humanize==4.12.3
+h5netcdf==1.8.1
+h5py==3.13.0
 minio==7.2.20
-netCDF4==1.7.2
 path==17.1.1
 scipy==1.15.3
 toml==0.10.2

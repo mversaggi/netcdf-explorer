@@ -7,8 +7,7 @@ RUN apk update && apk add --no-cache \
     build-base \
     nodejs-lts \
     npm \
-    hdf5-dev \
-    netcdf-dev
+    hdf5-dev
 
 # Set working directory
 WORKDIR /app

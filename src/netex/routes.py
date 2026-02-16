@@ -12,7 +12,9 @@ from flask import (
     request,
     url_for,
 )
+from minio import Minio
 from minio.error import S3Error
+from xarray import Dataset
 
 from netex.app import NETCDF_BUCKET_NAME
 
@@ -59,7 +61,8 @@ def summary(netcdf_filename):
     # Retrieve file from object store
     response = None
     try:
-        response = current_app.object_store_client.get_object(
+        object_store_client: Minio = current_app.object_store_client
+        response = object_store_client.get_object(
             bucket_name=NETCDF_BUCKET_NAME,
             object_name=netcdf_filename,
         )
@@ -78,8 +81,8 @@ def summary(netcdf_filename):
             response.release_conn()
 
     # Generate summary from NetCDF data
-    netcdf_data = xarray.open_dataset(BytesIO(file_data))
-    summary_html = netcdf_data._repr_html_()
+    netcdf_data: Dataset = xarray.open_dataset(BytesIO(file_data))
+    summary_html: str = netcdf_data._repr_html_()
 
     return render_template(
         "summary.html.jinja",
