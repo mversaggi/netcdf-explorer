@@ -44,10 +44,11 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+    # TODO: Remove prior to release
     # Bind mounts for local development (change source without rebuilding)
-    volumes:
-      - ./src:/app/src
-      - ./templates:/app/templates
+#    volumes:
+#      - ./src:/app/src
+#      - ./templates:/app/templates
     networks:
       - netcdf-network
     restart: unless-stopped

@@ -81,8 +81,8 @@ def summary(netcdf_filename):
             response.release_conn()
 
     # Generate summary from NetCDF data
-    netcdf_data: Dataset = xarray.open_dataset(BytesIO(file_data))
-    summary_html: str = netcdf_data._repr_html_()
+    netcdf_data = xarray.open_dataset(BytesIO(file_data))
+    summary_html = netcdf_data._repr_html_()
 
     return render_template(
         "summary.html.jinja",
