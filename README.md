@@ -49,7 +49,6 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 NetCDF Explorer (netex) is a web application that allows users to upload and analyze NetCDF3 and NetCDF4 files. It
@@ -58,23 +57,34 @@ provides a simple interface for viewing file metadata and structure using xarray
 Key features:
 * Upload and view NetCDF file summaries including dimensions, coordinates, and variables
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+<br/>
 
 ### Built With
 
 * [![Python][Python-badge]][Python-url]
 * [![Flask][Flask-badge]][Flask-url]
+* [![Xarray][Xarray-badge]][Xarray-url]
 * [![MinIO][MinIO-badge]][MinIO-url]
 * [![Tailwind CSS][Tailwind-badge]][Tailwind-url]
 * [![Docker][Docker-badge]][Docker-url]
+
+<br/>
+
+### NetCDF Engines
+
+NetCDF Explorer uses [xarray](https://xarray.dev/) to read uploaded files. Since files are streamed from MinIO into memory,
+xarray selects a backend engine that supports reading from in-memory buffers. The engine is chosen automatically at runtime
+based on the file format:
+
+| File Format | Engine | Notes |
+|-------------|--------|-------|
+| NetCDF3 (classic) | `scipy` | Handles classic and 64-bit offset NetCDF formats |
+| NetCDF4 / HDF5 | `h5netcdf` | Reads HDF5-based NetCDF4 files via `h5py` |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
-<!-- GETTING STARTED -->
 ## Getting Started
 
 To get a local copy up and running, follow these steps.
@@ -254,13 +264,15 @@ Project Link: [https://github.com/mversaggi/netcdf-explorer](https://github.com/
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[Flask-badge]: https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white
-[Flask-url]: https://flask.palletsprojects.com/
-[Python-badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
-[Python-url]: https://www.python.org/
-[MinIO-badge]: https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white
-[MinIO-url]: https://min.io/
-[Tailwind-badge]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
-[Tailwind-url]: https://tailwindcss.com/
 [Docker-badge]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
 [Docker-url]: https://www.docker.com/
+[Flask-badge]: https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white
+[Flask-url]: https://flask.palletsprojects.com/
+[MinIO-badge]: https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white
+[MinIO-url]: https://min.io/
+[Python-badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Python-url]: https://www.python.org/
+[Tailwind-badge]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[Tailwind-url]: https://tailwindcss.com/
+[Xarray-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pydata/xarray/refs/heads/main/doc/badge.json&style=for-the-badge
+[Xarray-url]: https://xarray.dev/

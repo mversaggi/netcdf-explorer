@@ -12,7 +12,9 @@ from flask import (
     request,
     url_for,
 )
+from minio import Minio
 from minio.error import S3Error
+from xarray import Dataset
 
 from netex.app import NETCDF_BUCKET_NAME
 
@@ -59,7 +61,8 @@ def summary(netcdf_filename):
     # Retrieve file from object store
     response = None
     try:
-        response = current_app.object_store_client.get_object(
+        object_store_client: Minio = current_app.object_store_client
+        response = object_store_client.get_object(
             bucket_name=NETCDF_BUCKET_NAME,
             object_name=netcdf_filename,
         )
@@ -87,3 +90,8 @@ def summary(netcdf_filename):
         file_size=humanize.naturalsize(file_size),
         summary=summary_html,
     )
+
+
+@app_blueprint.get("/map")
+def map_view():
+    return render_template("map.html.jinja", heatmap_data=None)
