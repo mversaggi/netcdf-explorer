@@ -46,9 +46,10 @@ services:
         condition: service_healthy
     # TODO: Remove prior to release
     # Bind mounts for local development (change source without rebuilding)
-#    volumes:
-#      - ./src:/app/src
-#      - ./templates:/app/templates
+    volumes:
+      - ./src:/app/src
+      - ./templates:/app/templates
+      - ./static/dist:/app/static/dist
     networks:
       - netcdf-network
     restart: unless-stopped
