@@ -29,6 +29,8 @@ uv run pytest --cov=src --cov-report=html:tests/reports
 ```
 
 ### Run Application
+> **Note:** Before testing, remind the user to run the Tailwind CSS watcher in a separate terminal (see Build Tailwind CSS below) so CSS changes are rendered correctly. Do NOT run the watcher yourself.
+
 ```bash
 # Standalone (requires NETEX_CONFIG env var pointing to config file)
 export NETEX_CONFIG=tests/conf/netex.toml
